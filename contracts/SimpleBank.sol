@@ -52,40 +52,54 @@ contract SimpleBank {
     }
 
     /// @notice Get balance
-    /// @return The balance of the user
-    // A SPECIAL KEYWORD prevents function from editing state variables;
-    // allows function to run locally/off blockchain
-    function getBalance() public returns (uint) {
-        /* Get the balance of the sender of this transaction */
+    /// @return The balance of the sender
+    function getBalance() public view returns (uint) {
+        return balances[msg.sender];
     }
 
     /// @notice Enroll a customer with the bank
     /// @return The users enrolled status
-    // Emit the appropriate event
-    function enroll() public returns (bool){
+    function enroll() public returns (bool) {
+        enrolled[msg.sender] = true;
+
+        emit LogEnrolled(msg.sender);
+
+        return enrolled[msg.sender];
     }
 
     /// @notice Deposit ether into bank
     /// @return The balance of the user after the deposit is made
-    // Add the appropriate keyword so that this function can receive ether
-    // Use the appropriate global variables to get the transaction sender and value
-    // Emit the appropriate event    
-    // Users should be enrolled before they can make deposits
-    function deposit() public returns (uint) {
-        /* Add the amount to the user's balance, call the event associated with a deposit,
-          then return the balance of the user */
+    function deposit() public payable returns (uint) {
+        require(msg.value > 0, 'Deposit amount must be great than 0');
+        require(enrolled[msg.sender] == true, 'Message sender must be enrolled before they can make deposits');
+
+        uint startingBalance = getBalance();
+        balances[msg.sender] = 0;
+        balances[msg.sender] = startingBalance + msg.value;
+
+        emit LogDepositMade(msg.sender, msg.value);
+
+        return getBalance();
     }
 
     /// @notice Withdraw ether from bank
     /// @dev This does not return any excess ether sent to it
     /// @param withdrawAmount amount you want to withdraw
     /// @return The balance remaining for the user
-    // Emit the appropriate event    
-    function withdraw(uint withdrawAmount) public returns (uint) {
-        /* If the sender's balance is at least the amount they want to withdraw,
-           Subtract the amount from the sender's balance, and try to send that amount of ether
-           to the user attempting to withdraw. 
-           return the user's balance.*/
+    function withdraw(uint withdrawAmount) public payable returns (uint) {
+        require(withdrawAmount > 0, 'Withdraw amount must be greater than 0');
+        require(address(this).balance >= withdrawAmount, 'Bank has insuffient funds');
+        uint startingBalance = getBalance();
+        require(startingBalance >= withdrawAmount, 'Message sender has insufficient funds');
+
+        balances[msg.sender] = 0;
+        balances[msg.sender] = startingBalance - withdrawAmount;
+        msg.sender.transfer(withdrawAmount);
+        uint endingBalance = getBalance();
+
+        emit LogWithdrawal(msg.sender, withdrawAmount, endingBalance);
+
+        return endingBalance;
     }
 
 }
