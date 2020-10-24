@@ -38,16 +38,16 @@ contract SimpleBank {
     //
 
     /* Use the appropriate global variable to get the sender of the transaction */
+    /* Sets the owner to the creator of this contract */
     constructor() public {
-        /* Set the owner to the creator of this contract */
+        owner = msg.sender;
     }
 
-    // Fallback function - Called if other functions don't match call or
-    // sent ether without data
-    // Typically, called when invalid data is sent
-    // Added so ether sent to this contract is reverted if the contract fails
-    // otherwise, the sender's money is transferred to contract
-    fallback() external payable {
+    fallback() external {
+        revert();
+    }
+
+    receive() external payable {
         revert();
     }
 
