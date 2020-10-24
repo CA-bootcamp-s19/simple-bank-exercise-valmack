@@ -1,10 +1,7 @@
-/*
-    This exercise has been updated to use Solidity version 0.6.12
-    Breaking changes from 0.5 to 0.6 can be found here: 
-    https://solidity.readthedocs.io/en/v0.6.12/060-breaking-changes.html
-*/
+/// SPDX-License-Identifier: Unlicense
 
 pragma solidity ^0.6.12;
+
 
 contract SimpleBank {
 
@@ -12,14 +9,14 @@ contract SimpleBank {
     // State variables
     //
     
-    /* Fill in the keyword. Hint: We want to protect our users balance from other contracts*/
-    mapping (address => uint) balances;
+    /* We want to protect our users balance from other contracts. */
+    mapping (address => uint) private balances;
     
-    /* Fill in the keyword. We want to create a getter function and allow contracts to be able to see if a user is enrolled.  */
-    mapping (address => bool) enrolled;
+    /* We want to create a getter function and allow contracts to be able to see if a user is enrolled. */
+    mapping (address => bool) public enrolled;
 
-    /* Let's make sure everyone knows who owns the bank. Use the appropriate keyword for this*/
-    address owner;
+    /* Let's make sure everyone knows who owns the bank. */
+    address public owner;
     
     //
     // Events - publicize actions to external listeners
